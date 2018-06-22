@@ -27,3 +27,13 @@ function finallycomments_settings_menu() {
 	);
 }
 add_action( 'admin_menu', 'finallycomments_settings_menu' );
+
+
+function finally_extra_content($content) {
+	if( is_singular() && is_main_query() ) {
+		$finallycomments = '<p>FINALLY COMMENTS GOES HERE</p>';
+		$content .= $finallycomments;
+	}
+	return $content;
+}
+add_filter('the_content', 'finally_extra_content');
