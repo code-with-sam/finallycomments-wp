@@ -62,19 +62,23 @@ function finallycomments_meta_box( $post ) { ?>
 
   <?php wp_nonce_field( basename( __FILE__ ), 'finallycomments_nonce' ); ?>
 
-	<p>
-		<label for="finallycomments-data"><?php _e( "Add a custom Thread using Finally Comment." ); ?></label>
-		<br>
-		<input type="checkbox" id="custom" name="custom-thread"
-				value="custom" />
-		 <label for="custom">include new custom thread</label>
-	</p>
-	<i>*you must </i>
+	<!-- <?php var_dump(  get_post_meta( $post->ID, '', true ) ); ?> -->
+	<!-- <?php var_dump(  get_post_meta( $post->ID, 'finallycomments', true ) ); ?> -->
 
+	<p>
+		<h3><?php _e( "Use Custom Comments Thread" ); ?></h3>
+		<input type="checkbox" name="finallycomments[custom]" value="1" <?php echo ( isset( get_post_meta( $post->ID, 'finallycomments', true )['custom'] ) ?  'checked' : '' ); ?> />
+		<label for="custom">Include Custom Thread</label>
+	</p>
+	<i>*You must have authorised your Steem account and registered your domain for custom threads. Vist <a href="https://finallycomments.com/dashboard">https://finallycomments.com/dashboard</a> (Activate your site under the API settings).</i>
+
+	<hr>
   <p>
-    <label for="finallycomments-data"><?php _e( "Add steemit link." ); ?></label>
-    <br>
-    <input class="widefat" type="text" name="finallycomments-data" id="finallycomments-data" value="<?php echo esc_attr( get_post_meta( $post->ID, 'finallycomments', true ) ); ?>">
+
+    <h3><?php _e( "Use Comments From A Steem Post" ); ?></h3>
+    <label><?php _e( "Steemit.com link" ); ?></label>
+    <input class="widefat" type="text" name="finallycomments[link]"
+		value="<?php echo get_post_meta( $post->ID, 'finallycomments', true )['link'] ?>">
   </p>
 <?php }
 
@@ -94,7 +98,7 @@ function finallycomments_save_post_class_meta( $post_id, $post ) {
     return $post_id;
 
   /* Get the posted data */
-  $new_meta_value = ( isset( $_POST['finallycomments-data'] ) ?  $_POST['finallycomments-data'] : '' );
+  $new_meta_value = ( isset( $_POST['finallycomments'] ) ?  $_POST['finallycomments'] : '' );
 
   /* Get the meta key. */
   $meta_key = 'finallycomments';
