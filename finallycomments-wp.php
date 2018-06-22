@@ -50,7 +50,7 @@ function finallycomments_meta_boxes_setup() {
 function finallycomments_add_post_meta_boxes() {
   add_meta_box(
     'finallycomments-data',      // Unique ID
-    esc_html__( 'Finally Commnets', 'example' ),    // Title
+    esc_html__( 'Finally Comments', 'example' ),    // Title
     'finallycomments_meta_box',   // Callback function
     'post',         // Admin page (or post type)
     'normal',         // Context
@@ -62,24 +62,43 @@ function finallycomments_meta_box( $post ) { ?>
 
   <?php wp_nonce_field( basename( __FILE__ ), 'finallycomments_nonce' ); ?>
 
-	<!-- <?php var_dump(  get_post_meta( $post->ID, '', true ) ); ?> -->
-	<!-- <?php var_dump(  get_post_meta( $post->ID, 'finallycomments', true ) ); ?> -->
+	<fieldset>
+	    <legend>Select Thread Type</legend>
+			<div>
+					<input type="radio" id="none" name="finallycomments[thread]" value="none"
+					<?php echo ( isset( get_post_meta( $post->ID, 'finallycomments', true )['thread'] ) ?  '' : 'checked' ); ?>
+					<?php echo ( get_post_meta( $post->ID, 'finallycomments', true )['thread'] == 'none' ?  'checked' : '' ); ?>
+					/>
+					<label for="none">No Thread</label>
+			</div>
+	    <div>
+	        <input type="radio" id="steem" name="finallycomments[thread]" value="steem"
+					<?php echo ( get_post_meta( $post->ID, 'finallycomments', true )['thread'] == 'steem' ?  'checked' : '' ); ?>
+					/>
+	        <label for="steem">Steem</label>
+	    </div>
 
+	    <div>
+	        <input type="radio" id="custom" name="finallycomments[thread]" value="custom"
+					<?php echo ( get_post_meta( $post->ID, 'finallycomments', true )['thread'] == 'custom' ?  'checked' : '' ); ?>
+					/>
+	        <label for="custom">Custom</label>
+	    </div>
+	</fieldset>
+	<hr>
 	<p>
-		<h3><?php _e( "Use Custom Comments Thread" ); ?></h3>
-		<input type="checkbox" name="finallycomments[custom]" value="1" <?php echo ( isset( get_post_meta( $post->ID, 'finallycomments', true )['custom'] ) ?  'checked' : '' ); ?> />
-		<label for="custom">Include Custom Thread</label>
+		<h3><?php _e( "Steem Threads" ); ?></h3>
+		<p><?php _e( "Your post is related to content you have created on the Steem network and you want the comments to match across your Wordpress site and Steem sites." ); ?></p>
+		<label><?php _e( "Enter your Steemit.com link" ); ?></p></label>
+		<input class="widefat" type="text" name="finallycomments[link]"
+		value="<?php echo get_post_meta( $post->ID, 'finallycomments', true )['link'] ?>">
+	</p>
+	<hr>
+	<p>
+			<h3><?php _e( "Custom Threads" ); ?></h3>
+			<p><?php _e( "Your post is not related to content on the Steem network and you want a standalone blank comments thread." ); ?></p>
 	</p>
 	<i>*You must have authorised your Steem account and registered your domain for custom threads. Vist <a href="https://finallycomments.com/dashboard">https://finallycomments.com/dashboard</a> (Activate your site under the API settings).</i>
-
-	<hr>
-  <p>
-
-    <h3><?php _e( "Use Comments From A Steem Post" ); ?></h3>
-    <label><?php _e( "Steemit.com link" ); ?></label>
-    <input class="widefat" type="text" name="finallycomments[link]"
-		value="<?php echo get_post_meta( $post->ID, 'finallycomments', true )['link'] ?>">
-  </p>
 <?php }
 
 
