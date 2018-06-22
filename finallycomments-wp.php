@@ -16,3 +16,14 @@ Text Domain: finallycomments-wp
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
+
+function finallycomments_settings_menu() {
+	add_options_page(
+		'Finally Comments Settings',
+		'Finally Comments',
+		'manage_options',
+		'finallycomments_settings.php',
+		'finallycomments_settings_setup'
+	);
+}
+add_action( 'admin_menu', 'finallycomments_settings_menu' );
