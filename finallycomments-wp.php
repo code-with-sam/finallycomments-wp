@@ -31,11 +31,47 @@ add_action( 'admin_menu', 'finallycomments_settings_menu' );
 
 function finally_extra_content($content) {
 	if( is_singular() && is_main_query() ) {
-		$finallycomments = '<p>FINALLY COMMENTS GOES HERE</p>';
-		$content .= $finallycomments;
+		$finally_thread_type = get_post_meta( get_the_ID(), 'finallycomments', true )['thread'];
+
+		if ($finally_thread_type == 'custom'){
+			$finally_username = get_post_meta( get_the_ID(), 'finallycomments', true )['username'];
+			$finallycomments = finally_generate_custom_thread($finally_username);
+			$content .= $finallycomments;
+		}
+
+		if ($finally_thread_type == 'steem'){
+			$finally_steemlink = get_post_meta( get_the_ID(), 'finallycomments', true )['link'];
+			$finallycomments = finally_generate_steem_thread($finally_steemlink);
+			$content .= $finallycomments;
+		}
+
 	}
-	return $content;
+	return $finally_thread_type . $content;
 }
+
+function finally_generate_steem_thread($steemlink) {
+	$slug = get_post_field( 'post_name', get_post() );
+	return '<section class="finally-comments"
+    data-id="' . $steemlink . '"
+    data-reputation="true"
+    data-values="true"
+    data-profile="true"
+    data-generated="false">
+</section>
+<script src="https://finallycomments.com/js/finally.min.js"></script>';
+}
+
+function finally_generate_custom_thread($username) {
+	$slug = get_post_field( 'post_name', get_post() );
+	return '<section class="finally-comments"  data-id="https://finallycomments.com/api/thread/'  .$username . '/' . $slug .'"
+  data-reputation="true"
+  data-values="true"
+  data-profile="true"
+  data-generated="true"
+  data-api="true"></section>
+	<script src="https://finallycomments.com/js/finally.min.js"></script>';
+}
+
 add_filter('the_content', 'finally_extra_content');
 
 add_action( 'load-post.php', 'finallycomments_meta_boxes_setup' );
@@ -61,6 +97,7 @@ function finallycomments_add_post_meta_boxes() {
 function finallycomments_meta_box( $post ) { ?>
 
   <?php wp_nonce_field( basename( __FILE__ ), 'finallycomments_nonce' ); ?>
+	<?php echo var_dump(get_post_meta( $post->ID, 'finallycomments', true )) ?>
 
 	<fieldset>
 	    <legend>Select Thread Type</legend>
@@ -89,15 +126,17 @@ function finallycomments_meta_box( $post ) { ?>
 	<p>
 		<h3><?php _e( "Steem Threads" ); ?></h3>
 		<p><?php _e( "Your post is related to content you have created on the Steem network and you want the comments to match across your Wordpress site and Steem sites." ); ?></p>
-		<label><?php _e( "Enter your Steemit.com link" ); ?></p></label>
-		<input class="widefat" type="text" name="finallycomments[link]"
-		value="<?php echo get_post_meta( $post->ID, 'finallycomments', true )['link'] ?>">
+		<label><?php _e( "Steemit.com link: " ); ?></p></label>
+		<input class="widefat" type="text" name="finallycomments[link]" value="<?php echo ( isset(get_post_meta( $post->ID, 'finallycomments', true )['link'] ) ? get_post_meta( $post->ID, 'finallycomments', true )['link'] : '' ) ?>">
 	</p>
 	<hr>
 	<p>
 			<h3><?php _e( "Custom Threads" ); ?></h3>
 			<p><?php _e( "Your post is not related to content on the Steem network and you want a standalone blank comments thread." ); ?></p>
 	</p>
+	<label><?php _e( "Steem username: " ); ?></p></label>
+	<input class="widefat" type="text" name="finallycomments[username]" value="<?php echo ( isset(get_post_meta( $post->ID, 'finallycomments', true )['username'] ) ? get_post_meta( $post->ID, 'finallycomments', true )['username'] : '' ) ?>">
+
 	<i>*You must have authorised your Steem account and registered your domain for custom threads. Vist <a href="https://finallycomments.com/dashboard">https://finallycomments.com/dashboard</a> (Activate your site under the API settings).</i>
 <?php }
 
