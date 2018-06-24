@@ -4,7 +4,7 @@
  */
 /*
 Plugin Name: Finally Comments WP
-Plugin URI: https://finallycomments.com/plugin
+Plugin URI: https://finallycomments.com
 Description: Comments Plugin for working with the STEEM blockchain
 Version: 0.1.0
 Author: Sam Billingham
