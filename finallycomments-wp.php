@@ -30,17 +30,19 @@ add_action( 'admin_menu', 'finallycomments_settings_menu' );
 
 
 function finally_extra_content($content) {
+	$finallyData = get_post_meta( get_the_ID(), 'finallycomments', true );
+
 	if( is_singular() && is_main_query() ) {
-		$finally_thread_type = get_post_meta( get_the_ID(), 'finallycomments', true )['thread'];
+		$finally_thread_type = $finallyData['thread'];
 
 		if ($finally_thread_type == 'custom'){
-			$finally_username = get_post_meta( get_the_ID(), 'finallycomments', true )['username'];
+			$finally_username = $finallyData['username'];
 			$finallycomments = finally_generate_custom_thread($finally_username);
 			$content .= $finallycomments;
 		}
 
 		if ($finally_thread_type == 'steem'){
-			$finally_steemlink = get_post_meta( get_the_ID(), 'finallycomments', true )['link'];
+			$finally_steemlink = $finallyData['link'];
 			$finallycomments = finally_generate_steem_thread($finally_steemlink);
 			$content .= $finallycomments;
 		}
@@ -94,30 +96,30 @@ function finallycomments_add_post_meta_boxes() {
   );
 }
 
-function finallycomments_meta_box( $post ) { ?>
+function finallycomments_meta_box( $post ) {
 
-  <?php wp_nonce_field( basename( __FILE__ ), 'finallycomments_nonce' ); ?>
-	<?php echo var_dump(get_post_meta( $post->ID, 'finallycomments', true )) ?>
+ 	wp_nonce_field( basename( __FILE__ ), 'finallycomments_nonce' );
+	$finallyData = get_post_meta( $post->ID, 'finallycomments', true ); ?>
 
 	<fieldset>
 	    <legend>Select Thread Type</legend>
 			<div>
 					<input type="radio" id="none" name="finallycomments[thread]" value="none"
-					<?php echo ( isset( get_post_meta( $post->ID, 'finallycomments', true )['thread'] ) ?  '' : 'checked' ); ?>
-					<?php echo ( get_post_meta( $post->ID, 'finallycomments', true )['thread'] == 'none' ?  'checked' : '' ); ?>
+					<?php echo ( isset( $finallyData['thread'] ) ?  '' : 'checked' ); ?>
+					<?php echo ( $finallyData['thread'] == 'none' ?  'checked' : '' ); ?>
 					/>
 					<label for="none">No Thread</label>
 			</div>
 	    <div>
 	        <input type="radio" id="steem" name="finallycomments[thread]" value="steem"
-					<?php echo ( get_post_meta( $post->ID, 'finallycomments', true )['thread'] == 'steem' ?  'checked' : '' ); ?>
+					<?php echo ( $finallyData['thread'] == 'steem' ?  'checked' : '' ); ?>
 					/>
 	        <label for="steem">Steem</label>
 	    </div>
 
 	    <div>
 	        <input type="radio" id="custom" name="finallycomments[thread]" value="custom"
-					<?php echo ( get_post_meta( $post->ID, 'finallycomments', true )['thread'] == 'custom' ?  'checked' : '' ); ?>
+					<?php echo ( $finallyData['thread'] == 'custom' ?  'checked' : '' ); ?>
 					/>
 	        <label for="custom">Custom</label>
 	    </div>
@@ -127,7 +129,7 @@ function finallycomments_meta_box( $post ) { ?>
 		<h3><?php _e( "Steem Threads" ); ?></h3>
 		<p><?php _e( "Your post is related to content you have created on the Steem network and you want the comments to match across your Wordpress site and Steem sites." ); ?></p>
 		<label><?php _e( "Steemit.com link: " ); ?></p></label>
-		<input class="widefat" type="text" name="finallycomments[link]" value="<?php echo ( isset(get_post_meta( $post->ID, 'finallycomments', true )['link'] ) ? get_post_meta( $post->ID, 'finallycomments', true )['link'] : '' ) ?>">
+		<input class="widefat" type="text" name="finallycomments[link]" value="<?php echo ( isset($finallyData['link'] ) ? $finallyData['link'] : '' ) ?>">
 	</p>
 	<hr>
 	<p>
@@ -135,7 +137,7 @@ function finallycomments_meta_box( $post ) { ?>
 			<p><?php _e( "Your post is not related to content on the Steem network and you want a standalone blank comments thread." ); ?></p>
 	</p>
 	<label><?php _e( "Steem username: " ); ?></p></label>
-	<input class="widefat" type="text" name="finallycomments[username]" value="<?php echo ( isset(get_post_meta( $post->ID, 'finallycomments', true )['username'] ) ? get_post_meta( $post->ID, 'finallycomments', true )['username'] : '' ) ?>">
+	<input class="widefat" type="text" name="finallycomments[username]" value="<?php echo ( isset($finallyData['username'] ) ? $finallyData['username'] : '' ) ?>">
 
 	<i>*You must have authorised your Steem account and registered your domain for custom threads. Vist <a href="https://finallycomments.com/dashboard">https://finallycomments.com/dashboard</a> (Activate your site under the API settings).</i>
 <?php }
