@@ -59,8 +59,7 @@ function finally_generate_steem_thread($steemlink) {
     data-values="true"
     data-profile="true"
     data-generated="false">
-</section>
-<script src="https://finallycomments.com/js/finally.min.js"></script>';
+</section>';
 }
 
 function finally_generate_custom_thread($username) {
@@ -70,9 +69,14 @@ function finally_generate_custom_thread($username) {
   data-values="true"
   data-profile="true"
   data-generated="true"
-  data-api="true"></section>
-	<script src="https://finallycomments.com/js/finally.min.js"></script>';
+  data-api="true"></section>';
 }
+
+function finally_enqueue_script() {
+    wp_enqueue_script( 'finally_script', plugin_dir_url( __FILE__ ) . 'js/finally.min.js',  array(), false, true );
+}
+
+add_action('wp_enqueue_scripts', 'finally_enqueue_script');
 
 add_filter('the_content', 'finally_extra_content');
 
