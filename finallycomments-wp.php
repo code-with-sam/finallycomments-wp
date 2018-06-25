@@ -13,10 +13,12 @@ License: GPLv2 or later
 Text Domain: finallycomments-wp
 */
 
+/* Don't allow direct execution of code */
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
+/* Create a settings menu item for plugin */
 function finallycomments_settings_menu() {
 	add_options_page(
 		'Finally Comments Settings',
@@ -28,7 +30,13 @@ function finallycomments_settings_menu() {
 }
 add_action( 'admin_menu', 'finallycomments_settings_menu' );
 
+/* Run custom code in use for the settings menu */
+function finallycomments_settings_setup() {
+	// Currently no custom settings needed
+	echo '<h2>Thank you for using FinallyComments.</h2><p>There are currently no settings for Finally Comments, all actions can be controlled when creating/editing a post.<p>';
+}
 
+/* Add Finally Comments code to the end of post content if in use */
 function finally_extra_content($content) {
 	$finallyData = get_post_meta( get_the_ID(), 'finallycomments', true );
 
@@ -50,7 +58,9 @@ function finally_extra_content($content) {
 	}
 	return $finally_thread_type . $content;
 }
+add_filter('the_content', 'finally_extra_content');
 
+/* Generate correct data attributes and html coce to be used for a Steem based Finally embed */
 function finally_generate_steem_thread($steemlink) {
 	$slug = get_post_field( 'post_name', get_post() );
 	return '<section class="finally-comments"
@@ -62,6 +72,7 @@ function finally_generate_steem_thread($steemlink) {
 </section>';
 }
 
+/* Generate correct data attributes and html coce to be used for a Custom Finally embed */
 function finally_generate_custom_thread($username) {
 	$slug = get_post_field( 'post_name', get_post() );
 	return '<section class="finally-comments"  data-id="https://finallycomments.com/api/thread/'  .$username . '/' . $slug .'"
@@ -72,23 +83,23 @@ function finally_generate_custom_thread($username) {
   data-api="true"></section>';
 }
 
+/* Load the Finally library on with enqueue */
 function finally_enqueue_script() {
     wp_enqueue_script( 'finally_script', plugin_dir_url( __FILE__ ) . 'js/finally.min.js',  array(), false, true );
 }
-
 add_action('wp_enqueue_scripts', 'finally_enqueue_script');
 
-add_filter('the_content', 'finally_extra_content');
 
+/* Meta box setup */
 add_action( 'load-post.php', 'finallycomments_meta_boxes_setup' );
 add_action( 'load-post-new.php', 'finallycomments_meta_boxes_setup' );
 
-/* Meta box setup function. */
 function finallycomments_meta_boxes_setup() {
   add_action( 'add_meta_boxes', 'finallycomments_add_post_meta_boxes' );
-  add_action( 'save_post', 'finallycomments_save_post_class_meta', 10, 2 );
+  add_action( 'save_post', 'finallycomments_save_post_meta', 10, 2 );
 }
 
+/* Meta boxes for use on post page  */
 function finallycomments_add_post_meta_boxes() {
   add_meta_box(
     'finallycomments-data',      // Unique ID
@@ -100,8 +111,8 @@ function finallycomments_add_post_meta_boxes() {
   );
 }
 
+/* Metabox html and form fields for post page */
 function finallycomments_meta_box( $post ) {
-
  	wp_nonce_field( basename( __FILE__ ), 'finallycomments_nonce' );
 	$finallyData = get_post_meta( $post->ID, 'finallycomments', true ); ?>
 
@@ -148,7 +159,7 @@ function finallycomments_meta_box( $post ) {
 
 
 /* Save the meta box's post metadata. */
-function finallycomments_save_post_class_meta( $post_id, $post ) {
+function finallycomments_save_post_meta( $post_id, $post ) {
 
   /* Verify the nonce before proceeding. */
   if ( !isset( $_POST['finallycomments_nonce'] ) || !wp_verify_nonce( $_POST['finallycomments_nonce'], basename( __FILE__ ) ) )
